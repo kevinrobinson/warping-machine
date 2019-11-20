@@ -19,6 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script>
   <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="./src/tfjs-model-view.js"></script>
 
   <!-- hash64 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
@@ -105,6 +106,7 @@
           <div class="Panel-text">Now you can visualize how well the model did on the generalization set.<br/><br/>Scan through individual classification errors, or compare how the images appear in <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet" target="_blank">MobileNet</a> embedding space versus your model's embedding space.</div>
         </div>
         <div class="Panel-actions ButtonList">
+          <button disabled="disabled" id="view-button" class="Button">View model network</button>
           <button disabled="disabled" id="inspect-button" class="Button">Browse accuracy</button>
           <button disabled="disabled"id="embeddings-button" class="Button">Visualize embedding space</button>
           <button disabled="disabled" id="embeddings-3d-button" class="Button">Visualize embeddings in 3D</button>

@@ -8,6 +8,7 @@ class App {
     this.el = el;
     this.els = els;
     this.state = {
+      model: null,
       project: null,
       generalization: null
     };
@@ -43,6 +44,7 @@ class App {
     this.els.embeddings3DButton.disabled = !canAnalyze;
     this.els.inspectButton.disabled = !canAnalyze;
     this.els.facetsButton.disabled = !canAnalyze;
+    this.els.viewButton.disabled = (model == null);
   }
 }
 
@@ -403,47 +405,6 @@ async function mapExamples(project, asyncFn) {
 
 
 
-
-// needs more than n=15 by default
-// async function projectWithUmap(el, embeddingsList) {
-//   console.log('projectWithUmap', embeddingsList.length);
-//   const umap = new UMAP();
-//   console.log('fitting', umap);
-//   const xys = await umap.fitAsync(embeddingsList);
-//   console.log('xys', xys);
-//   const xDomain = [_.min(xys.map(xy => xy[0])), _.max(xys.map(xy => xy[0]))];
-//   const yDomain = [_.min(xys.map(xy => xy[1])), _.max(xys.map(xy => xy[1]))];
-//   console.log('xDomain', xDomain);
-//   console.log('yDomain', yDomain);
-  
-//   var xScale = d3.scaleLinear()
-//       .domain(xDomain)
-//       .range([ 0, 800 ]);
-//   var yScale = d3.scaleLinear()
-//       .domain(yDomain)
-//       .range([ 0, 600 ]);
-//   const ns = "http://www.w3.org/2000/svg";
-//   const svg = document.createElementNS(ns, 'svg');
-//   svg.setAttribute('width', 800);
-//   svg.setAttribute('height', 600);
-//   svg.style.width = '800px';
-//   svg.style.height = '600px';
-  
-//   console.log('projected', xys.map(xy => [xScale(xy[0]), yScale(xy[1])]));
-//   xys.forEach((xy, index) => {
-//     const [x, y] = xy;
-//     const circle = document.createElementNS(ns, 'circle');
-//     circle.setAttribute('cx', xScale(x));
-//     circle.setAttribute('cy', yScale(y));
-//     circle.setAttribute('r', 5);
-//     const i = Math.round(index / xys.length * 16);
-//     circle.setAttribute('fill', `#ff${i.toString(16)}`); // rgb didn't work, even in web inspector? confused, but working around...
-//     svg.appendChild(circle);
-//   });
-//   el.appendChild(svg);
-// }
-
-
 async function useProjector(el, embeddingsList, examples, options = {}) {
   // project
   debug('useProjector');
@@ -671,6 +632,7 @@ export async function main(deps) {
     embeddingsButton: document.querySelector('#embeddings-button'),
     embeddings3DButton: document.querySelector('#embeddings-3d-button'),
     facetsButton: document.querySelector('#facets-button'),
+    viewButton: document.querySelector('#view-button'),
 
     workspace: document.querySelector('#workspace'),
     log: document.querySelector('#log')
@@ -706,6 +668,12 @@ export async function main(deps) {
         els.generalizationPreview.appendChild(imgEl);
       });
     }
+  });
+
+  els.viewButton.addEventListener('click', async e => {
+    const {model} = app.readState();
+    if (!model) return;
+    renderNetwork(model, els.workspace);
   });
 
   els.inspectButton.addEventListener('click', async e => {
@@ -751,4 +719,20 @@ export async function main(deps) {
     await deps.facets(els.workspace, examples);
     done();
   });
+}
+
+
+function renderNetwork(tmImageModel, el) {
+  const modelView = new ModelView(tmImageModel.model, {
+    height: 400,
+    appendImmediately: false, 
+    renderer: 'd3',
+    radius: 10,
+    layerPadding: 100,
+    printStats: false,
+    renderLinks: false
+  });
+  console.log('modelView', modelView);
+  const viewEl = modelView.getDOMElement();
+  el.appendChild(viewEl);
 }
